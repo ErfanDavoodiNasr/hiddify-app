@@ -425,6 +425,7 @@ jobs:
           prerelease: true
 
       - name: Create or Update Draft Release
+        if: ${{ inputs.upload-artifact && secrets.TOKEN_FOR_HIDDIFY_APP_REPO != '' }}
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_FOR_HIDDIFY_APP_REPO }}
