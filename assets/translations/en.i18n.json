@@ -117,6 +117,28 @@
         "delay": "By delay",
         "usage": "By usage"
       },
+      "selectStrategy": {
+        "title": "Connection strategy",
+        "description": "Choose how the app picks a proxy by country priority and lowest ping. Exclusive mode never leaves your selected countries.",
+        "mode": "Selection mode",
+        "modes": {
+          "manual": "Manual",
+          "countryPriority": "Country priority"
+        },
+        "fallback": {
+          "title": "If priority countries are unavailable",
+          "none": "Stay on these countries only",
+          "noneMsg": "Never switch to another country. Example: US only stays on US.",
+          "any": "Then allow any country",
+          "anyMsg": "Prefer the list first; if none are alive, use the lowest ping overall. Example: Germany first, otherwise anything."
+        },
+        "priorityList": "Country priority order",
+        "priorityListMsg": "Higher items are tried first. Within each country, the lowest ping is selected.",
+        "addCountry": "Add country",
+        "searchCountry": "Search countries",
+        "emptyCountries": "Add at least one country to enable priority selection.",
+        "examples": "Examples:\n1) US → TR → DE with “Stay on these countries only”\n2) US only with “Stay on these countries only”\n3) DE with “Then allow any country”"
+      },
       "ipInfo": {
         "address": "IP address",
         "country": "Country",
