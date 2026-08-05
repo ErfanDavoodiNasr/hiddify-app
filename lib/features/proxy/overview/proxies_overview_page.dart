@@ -3,8 +3,12 @@ import 'dart:math';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
+import 'package:hiddify/core/preferences/general_preferences.dart';
+import 'package:hiddify/features/proxy/model/proxy_select_strategy.dart';
+import 'package:hiddify/features/proxy/notifier/proxy_select_strategy_notifier.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
 import 'package:hiddify/features/proxy/widget/proxy_tile.dart';
 import 'package:hiddify/utils/utils.dart';
@@ -19,15 +23,20 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
 
     final proxies = ref.watch(proxiesOverviewNotifierProvider);
     final sortBy = ref.watch(proxiesSortNotifierProvider);
-
-    // final selectActiveProxyMutation = useMutation(
-    //   initialOnFailure: (error) => CustomToast.error(t.presentShortError(error)).show(context),
-    // );
+    final selectMode = ref.watch(Preferences.proxySelectMode);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(t.pages.proxies.title),
         actions: [
+          IconButton(
+            tooltip: t.pages.proxies.selectStrategy.title,
+            icon: Icon(
+              FluentIcons.arrow_routing_24_regular,
+              color: selectMode != ProxySelectMode.manual ? Theme.of(context).colorScheme.primary : null,
+            ),
+            onPressed: () => context.pushNamed('proxySelectStrategy'),
+          ),
           PopupMenuButton<ProxiesSort>(
             initialValue: sortBy,
             onSelected: ref.read(proxiesSortNotifierProvider.notifier).update,
@@ -41,7 +50,10 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async => await ref.read(proxiesOverviewNotifierProvider.notifier).urlTest("select"),
+        onPressed: () async {
+          await ref.read(proxiesOverviewNotifierProvider.notifier).urlTest("select");
+          await ref.read(proxySelectStrategyControllerProvider).apply(force: true);
+        },
         tooltip: t.pages.proxies.testDelay,
         child: const Icon(FluentIcons.flash_24_filled),
       ),
@@ -65,9 +77,6 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                         selected: group.selected == proxy.tag,
                         onTap: () async {
                           await ref.read(proxiesOverviewNotifierProvider.notifier).changeProxy(group.tag, proxy.tag);
-                          // if (selectActiveProxyMutation.state.isInProgress) return;
-                          // selectActiveProxyMutation.setFuture(
-                          // );
                         },
                       );
                     },

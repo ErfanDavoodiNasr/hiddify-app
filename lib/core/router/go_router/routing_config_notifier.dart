@@ -17,6 +17,7 @@ import 'package:hiddify/features/profile/details/profile_details_page.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_page.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_page.dart';
+import 'package:hiddify/features/proxy/overview/proxy_select_strategy_page.dart';
 import 'package:hiddify/features/route_rules/notifier/rule_notifier.dart';
 import 'package:hiddify/features/route_rules/overview/generic_list_page.dart';
 import 'package:hiddify/features/route_rules/overview/rule_page.dart';
@@ -132,6 +133,17 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                       path: 'proxies',
                       pageBuilder: (_, state) =>
                           customTransition(TransitionType.fade, state.pageKey, const ProxiesOverviewPage()),
+                      routes: <GoRoute>[
+                        GoRoute(
+                          name: 'proxySelectStrategy',
+                          path: 'select-strategy',
+                          pageBuilder: (_, state) => customTransition(
+                            TransitionType.fade,
+                            state.pageKey,
+                            const ProxySelectStrategyPage(),
+                          ),
+                        ),
+                      ],
                     ),
                     if (isMobileBreakpoint)
                       GoRoute(

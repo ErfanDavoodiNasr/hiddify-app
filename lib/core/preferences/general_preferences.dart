@@ -8,6 +8,7 @@ import 'package:hiddify/core/preferences/actions_at_closing.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
 import 'package:hiddify/core/utils/preferences_utils.dart';
 import 'package:hiddify/features/per_app_proxy/model/per_app_proxy_mode.dart';
+import 'package:hiddify/features/proxy/model/proxy_select_strategy.dart';
 import 'package:hiddify/features/window/notifier/window_notifier.dart';
 import 'package:hiddify/utils/platform_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -116,6 +117,25 @@ abstract class Preferences {
   static final psiphonConsentGiven = PreferencesNotifier.create<bool, bool>("psiphon-consent-given", false);
 
   static final showRouteGeneralOptions = PreferencesNotifier.create<bool, bool>("show-route-general-options", true);
+
+  static final proxySelectMode = PreferencesNotifier.create<ProxySelectMode, String>(
+    "proxy_select_mode",
+    ProxySelectMode.manual,
+    mapFrom: ProxySelectMode.values.byName,
+    mapTo: (value) => value.name,
+  );
+
+  static final proxySelectCountries = PreferencesNotifier.create<List<String>, List<String>>(
+    "proxy_select_countries",
+    <String>[],
+  );
+
+  static final proxySelectFallback = PreferencesNotifier.create<CountryFallbackMode, String>(
+    "proxy_select_fallback",
+    CountryFallbackMode.none,
+    mapFrom: CountryFallbackMode.values.byName,
+    mapTo: (value) => value.name,
+  );
 }
 
 @Riverpod(keepAlive: true)
