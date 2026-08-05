@@ -284,7 +284,12 @@ android-aab-release:
 	  --build-dart-define=sentry_dsn=$(SENTRY_DSN) \
 	  --build-dart-define=release=google-play
 
-windows-release: windows-zip-release windows-exe-release windows-msix-release
+windows-release: windows-zip-release windows-exe-release
+ifeq ($(WINDOWS_SIGNING_AVAILABLE),true)
+windows-release: windows-msix-release
+else
+	@echo "Windows signing secrets are unavailable; skipping signed MSIX packaging."
+endif
 
 windows-zip-release:
 	fastforge package \
@@ -539,4 +544,3 @@ ios-temp-prepare:
 	flutter build ios-framework
 	cd ios
 	pod install
-	

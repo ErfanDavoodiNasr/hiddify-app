@@ -27,6 +27,7 @@ import com.hiddify.core.libbox.NetworkInterface as LibboxNetworkInterface
 import android.system.OsConstants
 import com.hiddify.core.libbox.ConnectionOwner
 import com.hiddify.core.libbox.LocalDNSTransport
+import com.hiddify.core.libbox.NeighborUpdateListener
 import java.security.KeyStore
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -65,7 +66,6 @@ interface PlatformInterfaceWrapper : PlatformInterface {
             if (uid!=Process.INVALID_UID) {
                 val packages = Application.packageManager.getPackagesForUid(uid)
                 owner.userName = packages?.firstOrNull() ?: ""
-                owner.androidPackageName = owner.userName
             }
             return owner
         } catch (e: Exception) {
@@ -81,6 +81,15 @@ interface PlatformInterfaceWrapper : PlatformInterface {
 
     override fun closeDefaultInterfaceMonitor(listener: InterfaceUpdateListener) {
         DefaultNetworkMonitor.setListener(null)
+    }
+
+    // Android does not currently expose a neighbor-table monitor to the core.
+    // Keep the platform contract complete while preserving the existing
+    // behavior for callers that only need the default-interface monitor.
+    override fun startNeighborMonitor(listener: NeighborUpdateListener) {
+    }
+
+    override fun closeNeighborMonitor(listener: NeighborUpdateListener) {
     }
 
     override fun getInterfaces(): NetworkInterfaceIterator {
