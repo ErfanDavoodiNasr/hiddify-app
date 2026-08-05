@@ -31,7 +31,6 @@ env:
   TARGET_NAME_dmg: "Hiddify-MacOS"
   TARGET_NAME_pkg: "Hiddify-MacOS-Installer"
   TARGET_NAME_ipa: "Hiddify-iOS"
-  
 
 jobs:
   test:
@@ -60,6 +59,10 @@ jobs:
     needs: test
     permissions: write-all
     continue-on-error: true
+    env:
+      # Forks may not have the private Apple signing secrets. In that case,
+      # build the macOS artifacts unsigned instead of failing before Flutter runs.
+      APPLE_SIGNING_AVAILABLE: ${{ secrets.APPLE_CERTIFICATE_P12 != '' && secrets.APPLE_CERTIFICATE_P12_PASSWORD != '' && secrets.APPLE_MOBILE_PROVISIONING_PROFILES_TARGZ_BASE64 != '' }}
 
     strategy:
       fail-fast: false
@@ -119,14 +122,14 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Import Apple Codesign Certificates
-        if: ${{ inputs.upload-artifact && startsWith(matrix.os,'macos') }}
+        if: ${{ inputs.upload-artifact && startsWith(matrix.os,'macos') && env.APPLE_SIGNING_AVAILABLE == 'true' }}
         uses: apple-actions/import-codesign-certs@v6
         with: 
             p12-file-base64: "${{ secrets.APPLE_CERTIFICATE_P12 }}"
             p12-password: "${{ secrets.APPLE_CERTIFICATE_P12_PASSWORD }}"
 
       - name: Import Apple Mobile Provisioning Profile
-        if: ${{ inputs.upload-artifact && startsWith(matrix.os,'macos') }}
+        if: ${{ inputs.upload-artifact && startsWith(matrix.os,'macos') && env.APPLE_SIGNING_AVAILABLE == 'true' }}
         run: |
            mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
            echo "${{secrets.APPLE_MOBILE_PROVISIONING_PROFILES_TARGZ_BASE64}}"|base64 --decode | tar xz -C ~/Library/MobileDevice/Provisioning\ Profiles
@@ -136,7 +139,11 @@ jobs:
         #   ls ~/Library/MobileDevice/Provisioning\ Profiles
         #   echo "${{secrets.NEW_APPLE_MOBILE_PROVISIONING_PROFILES_TARXZ_BASE64}}"|base64 --decode | tar xJ -C ~/Library/MobileDevice/Provisioning\ Profiles
         #   # echo "${{secrets.NEW_APPLE_MOBILE_PROVISIONING_PROFILES_TARGZ_BASE64_2}}"|base64 --decode | tar xz -C ~/Library/MobileDevice/Provisioning\ Profiles
-          
+
+
+      - name: Continue without Apple signing
+        if: ${{ inputs.upload-artifact && startsWith(matrix.os,'macos') && env.APPLE_SIGNING_AVAILABLE != 'true' }}
+        run: echo "Apple signing secrets are unavailable; continuing with unsigned macOS artifacts."
 
 
       # - name: Setup Flutter for arm64
